@@ -4,6 +4,8 @@
 
 using namespace std;
 
+
+
 //AGREGA UN ALUMNO AL ARCHIVO ABIERTO
 void agregarAlumno (FILE * archivo) {
 	char carnet[20]="", nombre[35]="", seccion[20]="";
@@ -62,17 +64,74 @@ void agregar (string nombreArchivo, string control) {
 	}
 }
 
+//MOSTRAR CONTENIDO DEL ARCHIVO SEPARANDOLO POR PARTES
+void analizarLinea (char linea[], int noLinea) {
+	char * token = strtok(linea, ";");
+	cout<<noLinea<<".- ";
+	while (token != NULL){
+		cout<<token<<" ";
+		token = strtok(NULL, ";");
+	}
+	cout<<"\n";
+}
+
+//LEE LINEA POR LINEA EL ARCHIVO
+void mostrarDatos (FILE * archivo) {
+	char lineaTmp[1000]="", linea[1000]="";
+	int noLinea = 1;
+	cout<<"No."<<endl;
+	cout<<"Linea.- Registro"<<endl;
+	while(feof(archivo) == 0){
+		//LECTURA DE LINEA DEL ARCHIVO AL FINAL DE LA LINEA TIENE UN "SALTO DE LINEA (\n)"
+		fgets(lineaTmp, 1000, archivo);
+		//SE QUITA EL "SALTO DE LINEA (\n)" PARA DEJAR SOLO LA LINEA NORMAL
+		char* lineaSinSalto = strtok(lineaTmp, "\n");
+		//SE PASA LA LINEA SIN SALTO AL METODO ANALIZAR LINEA PARA QUE SE MUESTRE
+		strcpy(linea, lineaSinSalto);
+		if(feof(archivo) == 0){
+			analizarLinea(linea, noLinea);
+			noLinea += 1;
+		}
+	}
+}
+
+//DEL MENU DE GESTION SE USA PARA MOSTRAR EL CONTENIDO DEL ARCHIVO
+void mostrar (string nombreArchivo) {
+	FILE * archivo = fopen(nombreArchivo.c_str(), "a+");
+	if(archivo != NULL){
+		mostrarDatos(archivo);
+		fclose(archivo);
+	}
+}
+
+void eliminar (string nombreArchivo) {
+	FILE * archivo = fopen(nombreArchivo.c_str(), "a+");
+	if(archivo != NULL){
+		int linea;
+		cout<<"No."<<endl;
+		cout<<"Linea - Registro"<<endl;
+		mostrarDatos(archivo);
+		cout<<"elija la linea a borrar:"<<endl;
+		cin>>linea;
+		fclose(archivo);
+	}
+}
+
 //MENU DE GESTION PARA ALUMNOS O PARA BIBLIOTECA
 void menuGestion (string control, string nombreArchivo){
 	int menu=0;
-	while (menu != 5){
+	while (menu != 6){
 		cout<<"***** MENU DE CONTROL DE "<<control<<" *****"<<endl;
 		cout<<"Que desea hacer?"<<endl;
-		cout<<"1. Agregar\n2. Buscar\n3. Eliminar\n4. Modificar\n5. Regresar al menu principal"<<endl;
+		cout<<"1. Agregar\n2. Buscar\n3. Eliminar\n4. Modificar\n5. Mostrar\n6. Regresar al menu principal"<<endl;
 		cin>>menu;
 		cin.ignore();
 		if(menu==1){
 			agregar(nombreArchivo, control);
+		}else if(menu==3){
+			eliminar(nombreArchivo);
+		}else if(menu==5){
+			mostrar(nombreArchivo);
 		}
 	}
 }
