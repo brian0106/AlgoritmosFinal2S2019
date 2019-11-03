@@ -104,16 +104,57 @@ void mostrar (string nombreArchivo) {
 	}
 }
 
+void procesoEliminar (int lineaEliminar, string nombreArchivoIn){
+	FILE * archivoEntrada = fopen(nombreArchivoIn.c_str(), "a+");
+	if(archivoEntrada == NULL){
+		cout<<"No se ha podido abrir el archivo: "<<nombreArchivoIn<<endl;
+		return;
+	}
+	string rutaArchivoTmp = "C:/prueba/temp.txt";
+	FILE * archivoTmp = fopen(rutaArchivoTmp.c_str(), "a+");
+	if (archivoTmp == NULL){
+		cout<<"No se ha podido abrir el archivo temporal"<<endl;
+		return;
+	}
+	
+	char lineaArchivoInTmp[1000]="", lineaArchivoIn[1000]="";
+	int noLineaArchivoIn = 1;
+	
+	while(feof(archivoEntrada) == 0){
+		fgets(lineaArchivoInTmp, 1000, archivoEntrada);
+		//SE QUITA EL "SALTO DE LINEA (\n)" PARA DEJAR SOLO LA LINEA NORMAL
+		char* lineaSinSalto = strtok(lineaArchivoInTmp, "\n");
+		//SE PASA LA LINEA SIN SALTO AL METODO ANALIZAR LINEA PARA QUE SE MUESTRE
+		strcpy(lineaArchivoIn, lineaSinSalto);
+		
+		//CON EL CONTADOR DE LINEA DEL ARCHIVO DE ENTRADA
+		//SE COMPARA QUE NO SEA IGUAL A LA LINEA LEIDA
+		//DEL ARCHIVO ABIERTO
+		if(noLineaArchivoIn != lineaEliminar){
+			fprintf(archivoTmp, "%s\n", lineaArchivoIn);
+		}
+		
+		if(feof(archivoEntrada) == 0){
+			noLineaArchivoIn += 1;
+		}
+	}
+	fclose(archivoEntrada);
+	fclose(archivoTmp);
+	remove(nombreArchivoIn.c_str());
+	rename("temp.txt", nombreArchivoIn.c_str());
+}
+
 void eliminar (string nombreArchivo) {
-	FILE * archivo = fopen(nombreArchivo.c_str(), "a+");
-	if(archivo != NULL){
+	FILE * archivoMostrar = fopen(nombreArchivo.c_str(), "a+");
+//	FILE * archivo = fopen(nombreArchivo.c_str(), "a+");
+	if(archivoMostrar != NULL){
 		int linea;
-		cout<<"No."<<endl;
-		cout<<"Linea - Registro"<<endl;
-		mostrarDatos(archivo);
+		mostrarDatos(archivoMostrar);
+		fclose(archivoMostrar);
 		cout<<"elija la linea a borrar:"<<endl;
 		cin>>linea;
-		fclose(archivo);
+		procesoEliminar(linea, nombreArchivo);
+//		fclose(archivo);
 	}
 }
 
